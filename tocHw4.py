@@ -3,6 +3,10 @@
 """徐鼎翔"""
 """F74011140"""
 """
+	First check input is enough(must have two input), and open file.
+	Then read every line in file, check if it has "Links", and find url in "url" or "href".
+	But if query in url or (xxx).(xxx) is not between "/" and "?", remove this url.
+	Finally, count every type in url, and print it.
 """
 import sys
 import json
@@ -26,15 +30,25 @@ else:
 
 			for i in range(0, len(links)):
 				link = ""
-
 				if links[i].has_key("url"):
 					link = links[i]["url"]
 				elif links[i].has_key("href"):
 					link = links[i]["href"]
 
-				linktemp = re.findall("http[s]?://[^" + query + "]", link)
-				if len(linktemp) != 0:
-					print linktemp[0]
-					print link
+				if query in link:
+					continue
+
+				link = re.findall("http[s]?://(?:.+\/)+.+\..+", link)
+				if len(link) != 0:
+					link = re.split("[\?]", link[ len(link) - 1 ])
+					link = re.split(".+\.", link[0])
+
+					if link[1] in output:
+						output[ link[1] ] = output[ link[1] ] + 1
+					else:
+						output[ link[1] ] = 1
+
+	for item in output:
+		print item, output[item]
 
 	fp.close()
