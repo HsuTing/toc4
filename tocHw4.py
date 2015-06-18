@@ -21,9 +21,12 @@ else:
 	fp = open(sys.argv[1], "r")
 	query = sys.argv[2]
 	output = {}
+	check = False
 
 	for line in fp:
 		content = json.loads(line)
+		if query in content["Envelope"]["WARC-Header-Metadata"]["WARC-Target-URI"]:
+			check = True
 
 		if query in content["Envelope"]["WARC-Header-Metadata"]["WARC-Target-URI"] and content["Envelope"]["Payload-Metadata"]["HTTP-Response-Metadata"]["HTML-Metadata"].has_key("Links"):
 			links = content["Envelope"]["Payload-Metadata"]["HTTP-Response-Metadata"]["HTML-Metadata"]["Links"]
@@ -48,7 +51,13 @@ else:
 					else:
 						output[ link[1] ] = 1
 
-	for item in output:
-		print item, output[item]
+	if check:
+		if len(output) != 0:
+			for item in output:
+				print item + ":" + str(output[item])
+		else:
+			print "Type not found!"
+	else:
+		print "Page not found!"
 
 	fp.close()
